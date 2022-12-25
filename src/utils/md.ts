@@ -124,5 +124,5 @@ const downloadImage = async (href: string, dir?: string) => {
   const newFilePath = path.join(dir ?? ".", newFileName)
 
   writeFileSync(newFilePath, buffer)
-  return newFilePath
+  return newFileName
 }
