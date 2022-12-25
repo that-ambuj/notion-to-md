@@ -2,6 +2,7 @@ import { CalloutIcon } from "../types";
 import markdownTable from "markdown-table";
 import { randomUUID } from "crypto"
 import { writeFileSync } from "fs"
+import path from "path"
 
 export const inlineCode = (text: string) => {
   return `\`${text}\``;
@@ -71,10 +72,10 @@ export const todo = (text: string, checked: boolean) => {
   return checked ? `- [x] ${text}` : `- [ ] ${text}`;
 };
 
-export const image = async (alt: string, href: string) => {
-  const fileName = await downloadImage(href)
+export const image = async (alt: string, href: string, dir: string) => {
+  const filePath = await downloadImage(href, dir)
   
-  return `![${alt}](${fileName})`;
+  return `![${alt}](${filePath})`;
 };
 
 export const addTabSpace = (text: string, n = 0) => {
@@ -106,18 +107,20 @@ export const table = (cells: string[][]) => {
   return markdownTable(cells);
 };
 
-const downloadImage = async (href: string) => {
+const downloadImage = async (href: string, dir: string) => {
   const imageData = await fetch(href)
   const blob = await imageData.blob()
   const arrayBuffer = await blob.arrayBuffer()
   const buffer = Buffer.from(arrayBuffer)
 
-  const uniqueId = randomUUID().split("-").join("").slice(0, 10)
+  const uniqueId = randomUUID().split("-").join("").slice(0, 15)
 
   const originalFileName = href.split("/").pop()?.split("?")[0]
-  const newFileName = `${uniqueId}-${originalFileName}`
+  const ext = originalFileName?.split(".").pop() ?? "png"
 
-  writeFileSync(newFileName, buffer)
+  const newFileName = `${uniqueId}.${ext}`
+  const newFilePath = path.join(dir, newFileName)
 
-  return newFileName
+  writeFileSync(newFilePath, buffer)
+  return newFilePath
 }

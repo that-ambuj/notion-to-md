@@ -16,9 +16,11 @@ import { getBlockChildren } from "./utils/notion";
  */
 export class NotionToMarkdown {
   private notionClient: Client;
+  private staticFileDir: string;
   private customTransformers: Record<string, CustomTransformer>;
   constructor(options: NotionToMarkdownOptions) {
     this.notionClient = options.notionClient;
+    this.staticFileDir = options.staticFileDir ?? ".";
     this.customTransformers = {};
   }
   setCustomTransformer(
@@ -167,9 +169,9 @@ export class NotionToMarkdown {
             .join("");
           const image_type = blockContent.type;
           if (image_type === "external")
-            return md.image(image_caption_plain, blockContent.external.url);
+            return md.image(image_caption_plain, blockContent.external.url, this.staticFileDir);
           if (image_type === "file")
-            return md.image(image_caption_plain, blockContent.file.url);
+            return md.image(image_caption_plain, blockContent.file.url, this.staticFileDir);
         }
         break;
 
