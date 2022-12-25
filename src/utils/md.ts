@@ -116,7 +116,9 @@ const downloadImage = async (href: string, dir?: string) => {
   const uniqueId = randomUUID().split("-").join("").slice(0, 15)
 
   const originalFileName = href.split("/").pop()?.split("?")[0]
-  const ext = originalFileName?.split(".").pop() ?? "png"
+  const splitName = originalFileName?.split(".") ?? ["no-ext"]
+  // Satisfying the TS compiler. Won't be actually used  ^^^
+  const ext = splitName.length < 2 ? "png" : splitName?.pop()
 
   const newFileName = `${uniqueId}.${ext}`
   const newFilePath = path.join(dir ?? ".", newFileName)
