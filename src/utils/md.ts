@@ -72,7 +72,7 @@ export const todo = (text: string, checked: boolean) => {
   return checked ? `- [x] ${text}` : `- [ ] ${text}`;
 };
 
-export const image = async (alt: string, href: string, dir: string) => {
+export const image = async (alt: string, href: string, dir?: string) => {
   const filePath = await downloadImage(href, dir)
   
   return `![${alt}](${filePath})`;
@@ -107,7 +107,7 @@ export const table = (cells: string[][]) => {
   return markdownTable(cells);
 };
 
-const downloadImage = async (href: string, dir: string) => {
+const downloadImage = async (href: string, dir?: string) => {
   const imageData = await fetch(href)
   const blob = await imageData.blob()
   const arrayBuffer = await blob.arrayBuffer()
@@ -119,7 +119,7 @@ const downloadImage = async (href: string, dir: string) => {
   const ext = originalFileName?.split(".").pop() ?? "png"
 
   const newFileName = `${uniqueId}.${ext}`
-  const newFilePath = path.join(dir, newFileName)
+  const newFilePath = path.join(dir ?? ".", newFileName)
 
   writeFileSync(newFilePath, buffer)
   return newFilePath
