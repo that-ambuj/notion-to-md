@@ -1,5 +1,7 @@
 import { CalloutIcon } from "../types";
 import markdownTable from "markdown-table";
+import { nanoid } from "nanoid"
+import { writeFileSync } from "fs"
 
 export const inlineCode = (text: string) => {
   return `\`${text}\``;
@@ -69,8 +71,10 @@ export const todo = (text: string, checked: boolean) => {
   return checked ? `- [x] ${text}` : `- [ ] ${text}`;
 };
 
-export const image = (alt: string, href: string) => {
-  return `![${alt}](${href})`;
+export const image = async (alt: string, href: string) => {
+  const fileName = await downloadImage(href)
+  
+  return `![${alt}](${fileName})`;
 };
 
 export const addTabSpace = (text: string, n = 0) => {
@@ -101,3 +105,17 @@ ${children || ""}
 export const table = (cells: string[][]) => {
   return markdownTable(cells);
 };
+
+const downloadImage = async (href: string) => {
+  const imageData = await fetch(href)
+  const blob = await imageData.blob()
+  const arrayBuffer = await blob.arrayBuffer()
+  const buffer = Buffer.from(arrayBuffer)
+
+  const originalFileName = href.split("/").pop()?.split("?")[0]
+  const newFileName = `${nanoid()}-${originalFileName}`
+
+  writeFileSync(newFileName, buffer)
+
+  return newFileName
+}
