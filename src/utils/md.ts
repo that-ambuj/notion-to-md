@@ -1,6 +1,6 @@
 import { CalloutIcon } from "../types";
 import markdownTable from "markdown-table";
-import { nanoid } from "nanoid"
+import { randomUUID } from "crypto"
 import { writeFileSync } from "fs"
 
 export const inlineCode = (text: string) => {
@@ -112,8 +112,10 @@ const downloadImage = async (href: string) => {
   const arrayBuffer = await blob.arrayBuffer()
   const buffer = Buffer.from(arrayBuffer)
 
+  const uniqueId = randomUUID().split("-").join("").slice(0, 10)
+
   const originalFileName = href.split("/").pop()?.split("?")[0]
-  const newFileName = `${nanoid()}-${originalFileName}`
+  const newFileName = `${uniqueId}-${originalFileName}`
 
   writeFileSync(newFileName, buffer)
 
