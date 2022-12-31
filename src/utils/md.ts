@@ -1,7 +1,10 @@
 import { CalloutIcon } from "../types";
 import markdownTable from "markdown-table";
+
 import { randomUUID } from "crypto"
-import { writeFileSync } from "fs"
+
+import fs from "fs"
+import https from "https"
 import path from "path"
 
 export const inlineCode = (text: string) => {
@@ -108,21 +111,25 @@ export const table = (cells: string[][]) => {
 };
 
 const downloadImage = async (href: string, dir?: string) => {
-  const imageData = await fetch(href)
-  const blob = await imageData.blob()
-  const arrayBuffer = await blob.arrayBuffer()
-  const buffer = Buffer.from(arrayBuffer)
-
   const uniqueId = randomUUID().split("-").join("").slice(0, 15)
 
   const originalFileName = href.split("/").pop()?.split("?")[0]
   const splitName = originalFileName?.split(".") ?? ["no-ext"]
-  // Satisfying the TS compiler. Won't be actually used  ^^^
+  // Satisfying the TS compiler. Won't be actually used ^^^
   const ext = splitName.length < 2 ? "png" : splitName?.pop()
 
   const newFileName = `${uniqueId}.${ext}`
   const newFilePath = path.join(dir ?? ".", newFileName)
 
-  writeFileSync(newFilePath, buffer)
-  return newFileName
+  https.get(href, (res) => {
+    const fileStream = fs.createWriteStream(newFilePath)
+
+    res.pipe(fileStream)
+    fileStream.on("finish", () => {
+      fileStream.close()
+      return newFileName
+    })
+  }).on("error", (e) => {
+    console.error(e)
+  })
 }
