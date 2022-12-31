@@ -128,12 +128,12 @@ const downloadImage = async (href: string, dir?: string) => {
     fileStream.write(href, "base64url")
 
     fileStream.on("finish", () => {
-      fileStream.close()
+      fileStream.end()
       return newFileName
     }).on("error", (e) => {
       console.error(e)
+      return
     })
-
   }
 
   // Otherwise download files from the provided by `external.url`
@@ -141,10 +141,11 @@ const downloadImage = async (href: string, dir?: string) => {
     res.pipe(fileStream)
 
     fileStream.on("finish", () => {
-      fileStream.close()
+      fileStream.end()
       return newFileName
     })
   }).on("error", (e) => {
     console.error(e)
+    return
   })
 }
