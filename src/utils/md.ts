@@ -129,11 +129,12 @@ const downloadImage = async (href: string, dir?: string) => {
 
     fileStream.on("finish", () => {
       fileStream.end()
-      return newFileName
     }).on("error", (e) => {
       console.error(e)
       return
     })
+    
+    return newFileName
   }
 
   // Otherwise download files from the provided by `external.url`
@@ -142,10 +143,12 @@ const downloadImage = async (href: string, dir?: string) => {
 
     fileStream.on("finish", () => {
       fileStream.end()
-      return newFileName
+
     })
   }).on("error", (e) => {
     console.error(e)
     return
   })
+
+  return newFileName
 }
