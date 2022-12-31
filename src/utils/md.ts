@@ -125,14 +125,15 @@ const downloadImage = async (href: string, dir?: string) => {
 
   // Handle base url coming from `file.url`
   if (href.startsWith("data:")) {
-    const decodedBytes = Buffer.from(href, 'base64url')
+    fileStream.write(href, "base64url")
 
-    fileStream.write(decodedBytes, (e) => {
-      console.error("Error Downloading an Image File.", e)
-      return 
+    fileStream.on("finish", () => {
+      fileStream.close()
+      return newFileName
+    }).on("error", (e) => {
+      console.error(e)
     })
 
-    return newFileName
   }
 
   // Otherwise download files from the provided by `external.url`
