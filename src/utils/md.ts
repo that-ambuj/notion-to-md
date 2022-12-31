@@ -111,9 +111,6 @@ export const table = (cells: string[][]) => {
 };
 
 const downloadImage = async (href: string, dir?: string) => {
-  // Fix urls that start with 'data:' or 'blob:'
-  const url = !href.startsWith("http") ? href.split(":")[1] : href
-
   const uniqueId = randomUUID().split("-").join("").slice(0, 15)
 
   const originalFileName = href.split("/").pop()?.split("?")[0]
@@ -124,10 +121,24 @@ const downloadImage = async (href: string, dir?: string) => {
   const newFileName = `${uniqueId}.${ext}`
   const newFilePath = path.join(dir ?? ".", newFileName)
 
-  https.get(url, (res) => {
-    const fileStream = fs.createWriteStream(newFilePath)
+  const fileStream = fs.createWriteStream(newFilePath)
 
+  // Handle base url coming from `file.url`
+  if (href.startsWith("data:")) {
+    const decodedBytes = Buffer.from(href, 'base64url')
+
+    fileStream.write(decodedBytes, (e) => {
+      console.error("Error Downloading an Image File.", e)
+      return 
+    })
+
+    return newFileName
+  }
+
+  // Otherwise download files from the provided by `external.url`
+  https.get(href, (res) => {
     res.pipe(fileStream)
+
     fileStream.on("finish", () => {
       fileStream.close()
       return newFileName
