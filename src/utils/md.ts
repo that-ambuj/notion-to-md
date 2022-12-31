@@ -4,7 +4,7 @@ import markdownTable from "markdown-table";
 import { randomUUID } from "crypto"
 
 import fs from "fs"
-import https from "https"
+import http from "http"
 import path from "path"
 
 export const inlineCode = (text: string) => {
@@ -111,6 +111,9 @@ export const table = (cells: string[][]) => {
 };
 
 const downloadImage = async (href: string, dir?: string) => {
+  // Fix urls that start with 'data:' or 'blob:'
+  const url = !href.startsWith("http") ? href.split(":")[1] : href
+
   const uniqueId = randomUUID().split("-").join("").slice(0, 15)
 
   const originalFileName = href.split("/").pop()?.split("?")[0]
@@ -121,7 +124,7 @@ const downloadImage = async (href: string, dir?: string) => {
   const newFileName = `${uniqueId}.${ext}`
   const newFilePath = path.join(dir ?? ".", newFileName)
 
-  https.get(href, (res) => {
+  http.get(url, (res) => {
     const fileStream = fs.createWriteStream(newFilePath)
 
     res.pipe(fileStream)
